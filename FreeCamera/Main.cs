@@ -54,6 +54,12 @@ namespace FreeCamera
         private static void OnGUI(UnityModManager.ModEntry modEntry)
         {
             GUILayout.BeginHorizontal();
+            GUILayout.Label("Quick Zoom Modifier Key: ", new GUILayoutOption[0]);
+            settings.QuickZoomModKey = GUILayout.TextField(settings.QuickZoomModKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
             GUILayout.Label("X-Axis Modifier Key: ", new GUILayoutOption[0]);
             settings.XRotateModKey = GUILayout.TextField(settings.XRotateModKey, new GUILayoutOption[] { GUILayout.Width(100) });
             GUILayout.EndHorizontal();
@@ -75,24 +81,22 @@ namespace FreeCamera
             GUILayout.Label("Rotate Right Key: ", new GUILayoutOption[0]);
             settings.RotateRightKey = GUILayout.TextField(settings.RotateRightKey, new GUILayoutOption[] { GUILayout.Width(100) });
             GUILayout.EndHorizontal();
+            GUILayout.Space(20f);
+
+            GUILayout.Label(string.Format("Quick Zoom Speed Mult: <b>{0:F0}x</b>", settings.QuickZoomSpeed), new GUILayoutOption[0]);
+            settings.QuickZoomSpeed = GUILayout.HorizontalSlider(settings.QuickZoomSpeed, 1f, 10f, new GUILayoutOption[0]);
             GUILayout.Space(10f);
         }
 
-        public static bool first = true;
 
         [HarmonyPatch(typeof(CameraZoom), nameof(CameraZoom.TickZoom))]
         static class CameraZoom_TickZoom_Patch
         {
-            static bool Prefix(CameraZoom __instance, Coroutine ___m_ZoomRoutine, float ___m_Smooth, ref float ___m_PlayerScrollPosition, ref float ___m_ScrollPosition, ref float ___m_SmoothScrollPosition, Camera ___m_Camera)
+            static bool Prefix(CameraZoom __instance, Coroutine ___m_ZoomRoutine, float ___m_Smooth, ref float ___m_PlayerScrollPosition, ref float ___m_ScrollPosition, ref float ___m_SmoothScrollPosition, Camera ___m_Camera, float ___m_ZoomLenght)
             {
                 if (!enabled)
                     return true;
 
-                if (first)
-                {
-                    Dbgl($"smooth {___m_SmoothScrollPosition} player {___m_PlayerScrollPosition} scroll {___m_ScrollPosition}");
-                    first = false;
-                }
 
                 if (___m_ZoomRoutine != null)
                 {
@@ -100,23 +104,28 @@ namespace FreeCamera
                 }
 
 
-                if (!__instance.IsScrollBusy && Game.Instance.IsControllerMouse && Input.GetAxis("Mouse ScrollWheel") != 0)
+                if (!__instance.IsScrollBusy && Game.Instance.IsControllerMouse && Input.GetAxis("Mouse ScrollWheel") != 0 && (___m_Camera.fieldOfView > settings.FOVMin || Input.GetAxis("Mouse ScrollWheel") < 0))
                 {
-                    Dbgl($"mouse {Input.GetAxis("Mouse ScrollWheel")}");
-                    ___m_PlayerScrollPosition += (__instance.IsOutOfScreen ? 0f : Input.GetAxis("Mouse ScrollWheel"));
-                    Dbgl($"smooth {___m_SmoothScrollPosition} player {___m_PlayerScrollPosition} scroll {___m_ScrollPosition}");
+                    Dbgl($"mouse {Input.GetAxis("Mouse ScrollWheel")} {___m_Camera.fieldOfView} {settings.FOVMin}");
+                    ___m_PlayerScrollPosition += (__instance.IsOutOfScreen ? 0f : Input.GetAxis("Mouse ScrollWheel") * (AedenthornUtils.CheckKeyHeld(settings.QuickZoomModKey) ? settings.QuickZoomSpeed : 1));
+
+                    Dbgl($"scroll {___m_PlayerScrollPosition}");
+
+                    if (___m_PlayerScrollPosition <= 0)
+                        ___m_PlayerScrollPosition = 0.01f;
                 }
 
-                if (___m_PlayerScrollPosition == 0)
+                if (___m_PlayerScrollPosition <= 0)
                 {
-                    ___m_PlayerScrollPosition = 10f;
-                    Dbgl($"smooth {___m_SmoothScrollPosition} player {___m_PlayerScrollPosition} scroll {___m_ScrollPosition}");
+                    ___m_PlayerScrollPosition = (settings.FOVMax - settings.FOVMin) / 18f;
+                    Dbgl($"scroll {___m_PlayerScrollPosition}");
 
                 }
 
                 ___m_ScrollPosition = ___m_PlayerScrollPosition;
                 ___m_SmoothScrollPosition = Mathf.Lerp(___m_SmoothScrollPosition, ___m_PlayerScrollPosition, Time.unscaledDeltaTime * ___m_Smooth);
-                ___m_Camera.fieldOfView = Mathf.Lerp(180, 1, __instance.CurrentNormalizePosition * (__instance.FovMax - __instance.FovMin) / 180f);
+                ___m_Camera.fieldOfView = Mathf.Lerp(settings.FOVMax, settings.FOVMin, __instance.CurrentNormalizePosition * (__instance.FovMax - __instance.FovMin) / (settings.FOVMax - settings.FOVMin));
+                ___m_PlayerScrollPosition = ___m_ScrollPosition;
 
                 return false;
             }
