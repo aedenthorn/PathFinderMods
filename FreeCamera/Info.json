@@ -1,0 +1,10 @@
+{
+  "Id": "FreeCamera",
+  "DisplayName": "Free Camera",
+  "Author": "aedenthorn",
+  "Version": "0.1.0",
+  "AssemblyName": "FreeCamera.dll",
+  "EntryMethod": "FreeCamera.Main.Load",
+  "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/122",
+  "Repository": "https://raw.githubusercontent.com/aedenthorn/PathFinderMods/master/repository.json"
+}
