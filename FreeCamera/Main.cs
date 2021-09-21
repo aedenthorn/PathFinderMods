@@ -49,16 +49,45 @@ namespace FreeCamera
         private static void OnGUI(UnityModManager.ModEntry modEntry)
         {
             GUILayout.BeginHorizontal();
+            GUILayout.Label("Reset Modifier Key: ", new GUILayoutOption[0]);
+            settings.ResetModKey = GUILayout.TextField(settings.ResetModKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Reset Key: ", new GUILayoutOption[0]);
+            settings.ResetKey = GUILayout.TextField(settings.ResetKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(20f);
+
+
+            GUILayout.Label(string.Format("Quick Zoom Speed Mult: <b>{0:F0}x</b>", settings.QuickZoomSpeed), new GUILayoutOption[0]);
+            settings.QuickZoomSpeed = GUILayout.HorizontalSlider(settings.QuickZoomSpeed, 1f, 10f, new GUILayoutOption[0]);
+            GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
             GUILayout.Label("Quick Zoom Modifier Key: ", new GUILayoutOption[0]);
             settings.QuickZoomModKey = GUILayout.TextField(settings.QuickZoomModKey, new GUILayoutOption[] { GUILayout.Width(100) });
             GUILayout.EndHorizontal();
-            GUILayout.Space(10f);
+            GUILayout.Space(20f);
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Elevation Modifier Key: ", new GUILayoutOption[0]);
             settings.ElevationModKey = GUILayout.TextField(settings.ElevationModKey, new GUILayoutOption[] { GUILayout.Width(100) });
             GUILayout.EndHorizontal();
             GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Elevate Up Key: ", new GUILayoutOption[0]);
+            settings.ElevateUpKey = GUILayout.TextField(settings.ElevateUpKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Elevate Down Key: ", new GUILayoutOption[0]);
+            settings.ElevateDownKey = GUILayout.TextField(settings.ElevateDownKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(20f);
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("X-Axis Modifier Key: ", new GUILayoutOption[0]);
@@ -84,21 +113,6 @@ namespace FreeCamera
             GUILayout.EndHorizontal();
             GUILayout.Space(20f);
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Elevate Up Key: ", new GUILayoutOption[0]);
-            settings.ElevateUpKey = GUILayout.TextField(settings.ElevateUpKey, new GUILayoutOption[] { GUILayout.Width(100) });
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10f);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Elevate Down Key: ", new GUILayoutOption[0]);
-            settings.ElevateDownKey = GUILayout.TextField(settings.ElevateDownKey, new GUILayoutOption[] { GUILayout.Width(100) });
-            GUILayout.EndHorizontal();
-            GUILayout.Space(20f);
-
-            GUILayout.Label(string.Format("Quick Zoom Speed Mult: <b>{0:F0}x</b>", settings.QuickZoomSpeed), new GUILayoutOption[0]);
-            settings.QuickZoomSpeed = GUILayout.HorizontalSlider(settings.QuickZoomSpeed, 1f, 10f, new GUILayoutOption[0]);
-            GUILayout.Space(10f);
         }
 
 
@@ -145,6 +159,7 @@ namespace FreeCamera
         }
         
         public static float elevated = 0;
+        public static float defaultElevation = 0;
         
         [HarmonyPatch(typeof(CameraRig), nameof(CameraRig.TickRotate))]
         static class CameraRig_TickRotate_Patch
@@ -157,12 +172,12 @@ namespace FreeCamera
                 if((AedenthornUtils.CheckKeyHeld(settings.XRotateModKey) || AedenthornUtils.CheckKeyHeld(settings.ZRotateModKey)) && (AedenthornUtils.CheckKeyHeld(settings.RotateLeftKey) || AedenthornUtils.CheckKeyHeld(settings.RotateRightKey)))
                 {
                     Vector3 eulerAngles = __instance.transform.rotation.eulerAngles;
+                    Dbgl($"angles {__instance.transform.rotation.eulerAngles}");
                     
                     if(AedenthornUtils.CheckKeyHeld(settings.ZRotateModKey))
                         eulerAngles.z += ___m_RotationRatio * SettingsRoot.Controls.CameraRotationSpeedKeyboard * ___m_RotationSpeed * CameraRig.ConsoleRotationMod * (AedenthornUtils.CheckKeyHeld(settings.RotateLeftKey) ? -1 : 1);
                     else
                         eulerAngles.x += ___m_RotationRatio * SettingsRoot.Controls.CameraRotationSpeedKeyboard * ___m_RotationSpeed * CameraRig.ConsoleRotationMod * (AedenthornUtils.CheckKeyHeld(settings.RotateLeftKey) ? -1 : 1);
-
                     __instance.transform.DOKill(false);
                     __instance.transform.DOLocalRotate(eulerAngles, ___m_RotationTime, RotateMode.Fast).SetUpdate(true);
                 }
@@ -188,12 +203,24 @@ namespace FreeCamera
             {
                 if (!enabled)
                     return;
-                if (AedenthornUtils.CheckKeyHeld(settings.ElevationModKey) && (AedenthornUtils.CheckKeyHeld(settings.ElevateUpKey) || AedenthornUtils.CheckKeyHeld(settings.ElevateDownKey)))
+                if (AedenthornUtils.CheckKeyHeld(settings.ResetModKey) && AedenthornUtils.CheckKeyDown(settings.ResetKey))
                 {
+                    __instance.transform.eulerAngles = new Vector3(0, __instance.transform.rotation.eulerAngles.y, 0);
+                    if(defaultElevation > 0)
+                    {
+                        elevated = defaultElevation;
+                    }
+                }
+                else if (AedenthornUtils.CheckKeyHeld(settings.ElevationModKey) && (AedenthornUtils.CheckKeyHeld(settings.ElevateUpKey) || AedenthornUtils.CheckKeyHeld(settings.ElevateDownKey)))
+                {
+                    if (elevated == 0)
+                        defaultElevation = ___m_TargetPosition.y;
+
                     float e = 0.1f * (AedenthornUtils.CheckKeyHeld(settings.ElevateUpKey) ? 1 : -1);
                     ___m_TargetPosition += new Vector3(0, e, 0);
                     if (___m_TargetPosition.y <= 0)
                         ___m_TargetPosition = new Vector3(___m_TargetPosition.x, 0.01f, ___m_TargetPosition.z);
+
 
                     elevated = ___m_TargetPosition.y;
                 }

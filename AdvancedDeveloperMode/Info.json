@@ -1,10 +1,10 @@
 {
-  "Id": "FreeCamera",
-  "DisplayName": "Free Camera",
+  "Id": "AdvancedDeveloperMode",
+  "DisplayName": "Advanced Developer Mode",
   "Author": "aedenthorn",
-  "Version": "0.4.1",
-  "AssemblyName": "FreeCamera.dll",
-  "EntryMethod": "FreeCamera.Main.Load",
+  "Version": "0.1.0",
+  "AssemblyName": "AdvancedDeveloperMode.dll",
+  "EntryMethod": "AdvancedDeveloperMode.Main.Load",
   "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/122",
   "Repository": "https://raw.githubusercontent.com/aedenthorn/PathFinderMods/master/repository.json"
 }
