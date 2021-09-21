@@ -1,0 +1,10 @@
+{
+  "Id": "ToggleUI",
+  "DisplayName": "Toggle UI",
+  "Author": "aedenthorn",
+  "Version": "0.1.0",
+  "AssemblyName": "ToggleUI.dll",
+  "EntryMethod": "ToggleUI.Main.Load",
+  "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/125",
+  "Repository": "https://raw.githubusercontent.com/aedenthorn/PathFinderMods/master/repository.json"
+}

@@ -1,7 +1,9 @@
 {
     "Releases":
     [
-		{"Id": "FreeCamera", "Version": "0.4.1"}
+		{"Id": "AdvancedDeveloperMode", "Version": "0.1.1"},
+		{"Id": "FreeCamera", "Version": "0.4.1"},
+		{"Id": "ToggleUI", "Version": "0.1.0"}
     ]
 }
 

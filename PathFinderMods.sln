@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeCamera", "FreeCamera\Fr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvancedDeveloperMode", "AdvancedDeveloperMode\AdvancedDeveloperMode.csproj", "{15037670-F0EE-4038-9767-397C2E0F4F81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToggleUI", "ToggleUI\ToggleUI.csproj", "{617A78D7-6B39-4B90-8B1B-6550FC1A90CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{15037670-F0EE-4038-9767-397C2E0F4F81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15037670-F0EE-4038-9767-397C2E0F4F81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15037670-F0EE-4038-9767-397C2E0F4F81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{617A78D7-6B39-4B90-8B1B-6550FC1A90CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{617A78D7-6B39-4B90-8B1B-6550FC1A90CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{617A78D7-6B39-4B90-8B1B-6550FC1A90CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{617A78D7-6B39-4B90-8B1B-6550FC1A90CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

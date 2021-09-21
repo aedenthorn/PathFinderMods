@@ -2,9 +2,9 @@
   "Id": "AdvancedDeveloperMode",
   "DisplayName": "Advanced Developer Mode",
   "Author": "aedenthorn",
-  "Version": "0.1.0",
+  "Version": "0.2.0",
   "AssemblyName": "AdvancedDeveloperMode.dll",
   "EntryMethod": "AdvancedDeveloperMode.Main.Load",
-  "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/122",
+  "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/124",
   "Repository": "https://raw.githubusercontent.com/aedenthorn/PathFinderMods/master/repository.json"
 }

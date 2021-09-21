@@ -1,6 +1,9 @@
 ﻿using HarmonyLib;
+using Kingmaker.Cheats;
 using Kingmaker.QA;
+using Kingmaker.Settings;
 using Kingmaker.Utility;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -77,6 +80,53 @@ namespace AdvancedDeveloperMode
                 return !enabled || settings.ShowErrorWindow;
             }
         }
+        
+        [HarmonyPatch(typeof(CheatsCommon), nameof(CheatsCommon.RegisterCheats))]
+        static class CheatsCommon_RegisterCheats_Patch
+        {
+            static void Postfix()
+            {
+                SmartConsole.RegisterCommand("CanSeeTheirClassSpecificClothes", new SmartConsole.ConsoleCommandFunction(ToggleCanSeeTheirClassSpecificClothes));
+                SmartConsole.RegisterCommand("DressAllCompanionsInDrobyshevskysShirt", new SmartConsole.ConsoleCommandFunction(ToggleDressAllCompanionsInDrobyshevskysShirt));
+                SmartConsole.RegisterCommand("FeedCritters", new SmartConsole.ConsoleCommandFunction(ToggleFeedCritters));
+                SmartConsole.RegisterCommand("InsteadOfBloodSprinkleRandomCritters", new SmartConsole.ConsoleCommandFunction(ToggleInsteadOfBloodSprinkleRandomCritters));
+                SmartConsole.RegisterCommand("SpawnOwlcatOnGlobalmap", new SmartConsole.ConsoleCommandFunction(ToggleSpawnOwlcatOnGlobalmap));
+            }
+        }
 
+        private static void ToggleCanSeeTheirClassSpecificClothes(string parameters)
+        {
+            SettingsRoot.Game.SillyCheatCodes.CanSeeTheirClassSpecificClothes.SetValueAndConfirm(!SettingsRoot.Game.SillyCheatCodes.CanSeeTheirClassSpecificClothes.GetValue());
+            SmartConsole.WriteLine($"Set CanSeeTheirClassSpecificClothes to {SettingsRoot.Game.SillyCheatCodes.CanSeeTheirClassSpecificClothes.GetValue()}");
+            Dbgl($"Set CanSeeTheirClassSpecificClothes to {SettingsRoot.Game.SillyCheatCodes.CanSeeTheirClassSpecificClothes.GetValue()}");
+        }
+
+        private static void ToggleDressAllCompanionsInDrobyshevskysShirt(string parameters)
+        {
+            SettingsRoot.Game.SillyCheatCodes.DressAllCompanionsInDrobyshevskysShirt.SetValueAndConfirm(!SettingsRoot.Game.SillyCheatCodes.DressAllCompanionsInDrobyshevskysShirt.GetValue());
+            SmartConsole.WriteLine($"Set DressAllCompanionsInDrobyshevskysShirt to {SettingsRoot.Game.SillyCheatCodes.DressAllCompanionsInDrobyshevskysShirt.GetValue()}");
+            Dbgl($"Set DressAllCompanionsInDrobyshevskysShirt to {SettingsRoot.Game.SillyCheatCodes.DressAllCompanionsInDrobyshevskysShirt.GetValue()}");
+        }
+
+        private static void ToggleFeedCritters(string parameters)
+        {
+            SettingsRoot.Game.SillyCheatCodes.FeedCritters.SetValueAndConfirm(!SettingsRoot.Game.SillyCheatCodes.FeedCritters.GetValue());
+            SmartConsole.WriteLine($"Set FeedCritters to {SettingsRoot.Game.SillyCheatCodes.FeedCritters.GetValue()}");
+            Dbgl($"Set FeedCritters to {SettingsRoot.Game.SillyCheatCodes.FeedCritters.GetValue()}");
+        }
+
+        private static void ToggleInsteadOfBloodSprinkleRandomCritters(string parameters)
+        {
+            SettingsRoot.Game.SillyCheatCodes.InsteadOfBloodSprinkleRandomCritters.SetValueAndConfirm(!SettingsRoot.Game.SillyCheatCodes.InsteadOfBloodSprinkleRandomCritters.GetValue());
+            SmartConsole.WriteLine($"Set InsteadOfBloodSprinkleRandomCritters to {SettingsRoot.Game.SillyCheatCodes.InsteadOfBloodSprinkleRandomCritters.GetValue()}");
+            Dbgl($"Set InsteadOfBloodSprinkleRandomCritters to {SettingsRoot.Game.SillyCheatCodes.InsteadOfBloodSprinkleRandomCritters.GetValue()}");
+        }
+
+        private static void ToggleSpawnOwlcatOnGlobalmap(string parameters)
+        {
+            SettingsRoot.Game.SillyCheatCodes.SpawnOwlcatOnGlobalmap.SetValueAndConfirm(!SettingsRoot.Game.SillyCheatCodes.SpawnOwlcatOnGlobalmap.GetValue());
+            SmartConsole.WriteLine($"Set SpawnOwlcatOnGlobalmap to {SettingsRoot.Game.SillyCheatCodes.SpawnOwlcatOnGlobalmap.GetValue()}");
+            Dbgl($"Set SpawnOwlcatOnGlobalmap to {SettingsRoot.Game.SillyCheatCodes.SpawnOwlcatOnGlobalmap.GetValue()}");
+        }
     }
 }
