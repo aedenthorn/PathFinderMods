@@ -1,14 +1,9 @@
 ﻿using DG.Tweening;
 using HarmonyLib;
 using Kingmaker;
-using Kingmaker.Controllers.Rest;
 using Kingmaker.Settings;
 using Kingmaker.View;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
 using UnityModManagerNet;
 
@@ -60,6 +55,12 @@ namespace FreeCamera
             GUILayout.Space(10f);
 
             GUILayout.BeginHorizontal();
+            GUILayout.Label("Elevation Modifier Key: ", new GUILayoutOption[0]);
+            settings.ElevationModKey = GUILayout.TextField(settings.ElevationModKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
             GUILayout.Label("X-Axis Modifier Key: ", new GUILayoutOption[0]);
             settings.XRotateModKey = GUILayout.TextField(settings.XRotateModKey, new GUILayoutOption[] { GUILayout.Width(100) });
             GUILayout.EndHorizontal();
@@ -80,6 +81,18 @@ namespace FreeCamera
             GUILayout.BeginHorizontal();
             GUILayout.Label("Rotate Right Key: ", new GUILayoutOption[0]);
             settings.RotateRightKey = GUILayout.TextField(settings.RotateRightKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(20f);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Elevate Up Key: ", new GUILayoutOption[0]);
+            settings.ElevateUpKey = GUILayout.TextField(settings.ElevateUpKey, new GUILayoutOption[] { GUILayout.Width(100) });
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10f);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Elevate Down Key: ", new GUILayoutOption[0]);
+            settings.ElevateDownKey = GUILayout.TextField(settings.ElevateDownKey, new GUILayoutOption[] { GUILayout.Width(100) });
             GUILayout.EndHorizontal();
             GUILayout.Space(20f);
 
@@ -131,6 +144,8 @@ namespace FreeCamera
             }
         }
         
+        public static float elevated = 0;
+        
         [HarmonyPatch(typeof(CameraRig), nameof(CameraRig.TickRotate))]
         static class CameraRig_TickRotate_Patch
         {
@@ -151,13 +166,38 @@ namespace FreeCamera
                     __instance.transform.DOKill(false);
                     __instance.transform.DOLocalRotate(eulerAngles, ___m_RotationTime, RotateMode.Fast).SetUpdate(true);
                 }
-
             }
         }
 
-        private static float Clamp(float value, float min, float max)
+        [HarmonyPatch(typeof(CameraRig), nameof(CameraRig.TickScroll))]
+        static class CameraRig_TickScroll_Patch
         {
-            return value;
+            static void Postfix(CameraRig __instance, ref Vector3 ___m_TargetPosition)
+            {
+                if (!enabled)
+                    return;
+
+                if(elevated > 0)
+                    ___m_TargetPosition = new Vector3(___m_TargetPosition.x, elevated, ___m_TargetPosition.z);
+            }
+        }
+        [HarmonyPatch(typeof(CameraRig), "Update")]
+        static class CameraRig_Update_Patch
+        {
+            static void Prefix(CameraRig __instance, ref Vector3 ___m_TargetPosition)
+            {
+                if (!enabled)
+                    return;
+                if (AedenthornUtils.CheckKeyHeld(settings.ElevationModKey) && (AedenthornUtils.CheckKeyHeld(settings.ElevateUpKey) || AedenthornUtils.CheckKeyHeld(settings.ElevateDownKey)))
+                {
+                    float e = 0.1f * (AedenthornUtils.CheckKeyHeld(settings.ElevateUpKey) ? 1 : -1);
+                    ___m_TargetPosition += new Vector3(0, e, 0);
+                    if (___m_TargetPosition.y <= 0)
+                        ___m_TargetPosition = new Vector3(___m_TargetPosition.x, 0.01f, ___m_TargetPosition.z);
+
+                    elevated = ___m_TargetPosition.y;
+                }
+            }
         }
     }
 }

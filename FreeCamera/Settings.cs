@@ -5,6 +5,9 @@ namespace FreeCamera
     public class Settings : UnityModManager.ModSettings
     {
         public string QuickZoomModKey { get; set; } = "left shift";
+        public string ElevationModKey { get; set; } = "left ctrl";
+        public string ElevateUpKey { get; set; } = "w";
+        public string ElevateDownKey { get; set; } = "s";
         public float QuickZoomSpeed { get; set; } = 2;
         public string XRotateModKey { get; set; } = "left shift";
         public string ZRotateModKey { get; set; } = "left ctrl";

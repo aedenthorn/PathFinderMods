@@ -2,7 +2,7 @@
   "Id": "FreeCamera",
   "DisplayName": "Free Camera",
   "Author": "aedenthorn",
-  "Version": "0.2.0",
+  "Version": "0.3.0",
   "AssemblyName": "FreeCamera.dll",
   "EntryMethod": "FreeCamera.Main.Load",
   "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/122",
