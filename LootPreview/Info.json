@@ -2,7 +2,7 @@
   "Id": "LootPreview",
   "DisplayName": "Loot Preview",
   "Author": "aedenthorn",
-  "Version": "0.1.1",
+  "Version": "0.2.0",
   "AssemblyName": "LootPreview.dll",
   "EntryMethod": "LootPreview.Main.Load",
   "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/127",

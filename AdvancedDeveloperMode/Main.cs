@@ -1,4 +1,8 @@
 ﻿using HarmonyLib;
+using Kingmaker;
+using Kingmaker.BarkBanters;
+using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Area;
 using Kingmaker.Cheats;
 using Kingmaker.QA;
 using Kingmaker.Settings;
@@ -19,9 +23,6 @@ namespace AdvancedDeveloperMode
 
         private static readonly bool isDebug = true;
         
-        private static List<string> commands = new List<string>();
-
-
         public static void Dbgl(string str = "", bool pref = true)
         {
             if (isDebug)
@@ -91,6 +92,54 @@ namespace AdvancedDeveloperMode
                 SmartConsole.RegisterCommand("FeedCritters", new SmartConsole.ConsoleCommandFunction(ToggleFeedCritters));
                 SmartConsole.RegisterCommand("InsteadOfBloodSprinkleRandomCritters", new SmartConsole.ConsoleCommandFunction(ToggleInsteadOfBloodSprinkleRandomCritters));
                 SmartConsole.RegisterCommand("SpawnOwlcatOnGlobalmap", new SmartConsole.ConsoleCommandFunction(ToggleSpawnOwlcatOnGlobalmap));
+                SmartConsole.RegisterCommand("list_companions", new SmartConsole.ConsoleCommandFunction(ListCompanions));
+                SmartConsole.RegisterCommand("list_banters", new SmartConsole.ConsoleCommandFunction(ListBanter));
+                SmartConsole.RegisterCommand("list_locs", new SmartConsole.ConsoleCommandFunction(ListLocs));
+            }
+        }
+
+        private static void ListLocs(string parameters)
+        {
+            string paramString = Utilities.GetParamString(parameters, 1, null);
+            foreach (BlueprintAreaEnterPoint blueprintAreaEnterPoint in Utilities.GetScriptableObjects<BlueprintAreaEnterPoint>())
+            {
+                try
+                {
+                    if (paramString == null || blueprintAreaEnterPoint.name.Contains(paramString))
+                    {
+                        PFLog.SmartConsole.Log(blueprintAreaEnterPoint.name + " LocalizedName: " + blueprintAreaEnterPoint.Area.AreaName, Array.Empty<object>());
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Dbgl($"Exception getting loc {blueprintAreaEnterPoint?.name}:\n\n{ex}");
+                }
+            }
+        }
+
+        private static void ListCompanions(string parameters)
+        {
+            string value = Utilities.GetParamString(parameters, 1, null) ?? "";
+            foreach (BlueprintUnit blueprint in Utilities.GetScriptableObjects<BlueprintUnit>())
+            {
+                string blueprintPath = Utilities.GetBlueprintPath(blueprint);
+                if (blueprintPath.Contains(value))
+                {
+                    PFLog.SmartConsole.Log(blueprintPath, Array.Empty<object>());
+                }
+            }
+        }
+        
+        private static void ListBanter(string parameters)
+        {
+            string value = Utilities.GetParamString(parameters, 1, null) ?? "";
+            foreach (BlueprintBarkBanter blueprint in Utilities.GetScriptableObjects<BlueprintBarkBanter>())
+            {
+                string blueprintPath = Utilities.GetBlueprintPath(blueprint);
+                if (blueprintPath.Contains(value))
+                {
+                    PFLog.SmartConsole.Log(blueprintPath, Array.Empty<object>());
+                }
             }
         }
 

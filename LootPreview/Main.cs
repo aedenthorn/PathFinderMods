@@ -1,10 +1,9 @@
 ﻿using HarmonyLib;
 using Kingmaker;
 using Kingmaker.Blueprints.Root.Strings;
-using Kingmaker.Cheats;
+using Kingmaker.UI._ConsoleUI.Overtips;
 using Kingmaker.Utility;
 using Kingmaker.View.MapObjects;
-using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -30,7 +29,7 @@ namespace LootPreview
         {
             settings = Settings.Load<Settings>(modEntry);
 
-            //modEntry.OnGUI = OnGUI;
+            modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
             modEntry.OnToggle = OnToggle;
             //modEntry.OnUpdate = OnUpdate;
@@ -55,47 +54,62 @@ namespace LootPreview
             settings.Save(modEntry);
         }
 
-        /*
+        
         private static void OnGUI(UnityModManager.ModEntry modEntry)
         {
-            GUILayout.Label(string.Format("Maximum distance to show info: <b>{0:F0}x</b>", settings.MaxDistance), new GUILayoutOption[0]);
+            GUILayout.Label(string.Format("Maximum distance to show info: <b>{0:F0}m</b>", settings.MaxDistance), new GUILayoutOption[0]);
             settings.MaxDistance = GUILayout.HorizontalSlider(settings.MaxDistance, 0f, 100f, new GUILayoutOption[0]);
             GUILayout.Space(10f);
         }
-        */
-
-        [HarmonyPatch(typeof(InteractionLootPart), nameof(InteractionLootPart.GetName))]
-        static class InteractionLootPart_GetName_Patch
+        
+        [HarmonyPatch(typeof(EntityOvertipVM), nameof(EntityOvertipVM.HighlightChanged))]
+        static class EntityOvertipVM_HighlightChanged_Patch
         {
-            static void Postfix(InteractionLootPart __instance, ref string __result)
+            static void Prefix(EntityOvertipVM __instance)
             {
-                if (!enabled || !__instance.Settings.AddMapMarker)
+                if (!enabled || !__instance.MapObject?.Get<InteractionLootPart>() || !__instance.ObjectIsHovered.Value)
                     return;
 
-                if (StringUtility.IsNullOrInvisible(__result))
-                    __result = UIStrings.Instance.LootWindow.GetLootName(__instance.Settings.LootContainerType);
+                InteractionLootPart interactionLootPart = __instance.MapObject.Get<InteractionLootPart>();
 
-                var entries = __instance.Loot;
-                if (entries.Any())
+                string text = !StringUtility.IsNullOrInvisible(interactionLootPart.GetName()) ? interactionLootPart.GetName() : UIStrings.Instance.LootWindow.GetLootName(interactionLootPart.Settings.LootContainerType);
+                bool nearby = CharacterNearby(interactionLootPart);
+
+                Dbgl($"highlighted {text}; current text {__instance.Name.Value}, nearby {nearby}");
+
+                if (__instance.Name.Value == text && nearby)
                 {
-                    foreach(var entry in entries)
+                    var entries = interactionLootPart.Loot;
+                    //Dbgl($"object has {entries.Count()} loots");
+                    foreach (var entry in entries)
                     {
-                        __result += $"\n{entry.Name}";
+                        text += $"\n{entry.Name}";
+                        //Dbgl($"Added item {entry.Name} to name");
                     }
+                    __instance.Name.Value = text;
+                    //Dbgl($"Added items to name {text}");
+                }
+                else if (__instance.Name.Value != text && !nearby)
+                {
+                    __instance.Name.Value = text;
+                    //Dbgl($"removed items from name {text}");
                 }
             }
         }
-        /*
-        private static bool CharacterNearby(InteractionLootPart instance)
+        
+        private static bool CharacterNearby(InteractionLootPart interactionLootPart)
         {
+            if (settings.MaxDistance <= 0)
+                return true;
+
             foreach(var c in Game.Instance.Player.Party)
             {
-                //Dbgl($"check if {c.CharacterName} is close enough: {instance.Owner.Position} {c.Position} {Vector3.Distance(instance.Owner.Position, c.Position)}");
-                if (Vector3.Distance(instance.Owner.Position, c.Position) <= settings.MaxDistance)
+                //Dbgl($"check if {c.CharacterName} is close enough: {interactionLootPart.Owner.Position} {c.Position} {Vector3.Distance(interactionLootPart.Owner.Position, c.Position)}");
+                if (Vector3.Distance(interactionLootPart.Owner.Position, c.Position) <= settings.MaxDistance)
                     return true;
             }
             return false;
         }
-        */
+        
     }
 }
