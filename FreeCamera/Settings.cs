@@ -8,6 +8,7 @@ namespace FreeCamera
         public string ResetKey { get; set; } = "r";
         public string QuickZoomModKey { get; set; } = "left shift";
         public float QuickZoomSpeed { get; set; } = 5;
+        public float MouseRotationSpeed { get; set; } = 1;
         public string ElevationModKey { get; set; } = "left ctrl";
         public string ElevateUpKey { get; set; } = "w";
         public string ElevateDownKey { get; set; } = "s";

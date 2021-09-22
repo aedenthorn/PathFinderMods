@@ -113,6 +113,10 @@ namespace FreeCamera
             GUILayout.EndHorizontal();
             GUILayout.Space(20f);
 
+            GUILayout.Label(string.Format("Mouse Rotation Speed Mult: <b>{0:F1}1x</b>", settings.MouseRotationSpeed), new GUILayoutOption[0]);
+            settings.MouseRotationSpeed = GUILayout.HorizontalSlider(settings.MouseRotationSpeed, 1f, 100f, new GUILayoutOption[0]) / 10f;
+            GUILayout.Space(20f);
+
         }
 
 
@@ -181,6 +185,35 @@ namespace FreeCamera
                     __instance.transform.DOKill(false);
                     __instance.transform.DOLocalRotate(eulerAngles, ___m_RotationTime, RotateMode.Fast).SetUpdate(true);
                 }
+            }
+        }
+
+        private static Vector3 lastMousePosition;
+
+        [HarmonyPatch(typeof(CameraRig), "RotateByMiddleButton")]
+        static class CameraRig_RotateByMiddleButton_Patch
+        {
+            static bool Prefix(CameraRig __instance, float ___m_RotationRatio, float ___m_RotationTime)
+            {
+                if (!enabled || !Input.GetMouseButton(2) || (!AedenthornUtils.CheckKeyHeld(settings.XRotateModKey) && !AedenthornUtils.CheckKeyHeld(settings.ZRotateModKey)))
+                {
+                    lastMousePosition = -Vector3.one;
+                    return true;
+                }
+
+                if(lastMousePosition.x >= 0)
+                {
+                    float rotation = Input.mousePosition.x - lastMousePosition.x;
+                    Vector3 eulerAngles = __instance.transform.rotation.eulerAngles;
+                    if (AedenthornUtils.CheckKeyHeld(settings.ZRotateModKey))
+                        eulerAngles.z += rotation * settings.MouseRotationSpeed;
+                    else
+                        eulerAngles.x += rotation * settings.MouseRotationSpeed;
+                    __instance.transform.DOKill(false);
+                    __instance.transform.DOLocalRotate(eulerAngles, ___m_RotationTime, RotateMode.Fast).SetUpdate(true);
+                }
+                lastMousePosition = Input.mousePosition;
+                return false;
             }
         }
 

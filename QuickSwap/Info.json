@@ -1,0 +1,10 @@
+{
+  "Id": "QuickSwap",
+  "DisplayName": "Quick Swap",
+  "Author": "aedenthorn",
+  "Version": "0.1.0",
+  "AssemblyName": "QuickSwap.dll",
+  "EntryMethod": "QuickSwap.Main.Load",
+  "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/131",
+  "Repository": "https://raw.githubusercontent.com/aedenthorn/PathFinderMods/master/repository.json"
+}
