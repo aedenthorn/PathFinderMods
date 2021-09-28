@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class AedenthornUtils
 {
@@ -74,6 +75,53 @@ public class AedenthornUtils
         return GetTransformPath(t.parent) + "/" + t.name;
     }
 
+    public static string Spy()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, raycastResults);
+
+        Dictionary<int, List<GameObject>> layerDict = new Dictionary<int, List<GameObject>>();
+
+        foreach (RaycastResult rcr in raycastResults)
+        {
+            if (!layerDict.ContainsKey(rcr.gameObject.layer))
+                layerDict[rcr.gameObject.layer] = new List<GameObject>();
+            layerDict[rcr.gameObject.layer].Add(rcr.gameObject);
+        }
+        List<string> output = new List<string>() { "Spying","" };
+        foreach(var kvp in layerDict)
+        {
+            output.Add($"Layer: {LayerMask.LayerToName(kvp.Key)}");
+            foreach(var go in kvp.Value)
+            {
+                output.Add($"\tGameObject: {go.name}");
+                foreach(Component c in go.GetComponents<Component>())
+                {
+                    output.Add($"\t\tComponent: {c.GetType().Name}");
+                }
+            }
+        }
+
+        return string.Join("\n", output);
+    }
+    public static string UISpy()
+    {
+        var list = Object.FindObjectsOfType<Canvas>();
+        List<string> output = new List<string>() { "UI", "" };
+        foreach (Canvas c in list)
+        {
+            output.Add("GameObject: " + c.gameObject.name);
+            foreach (Component comp in c.gameObject.GetComponents<Component>())
+            {
+                output.Add("\tComponent: " + comp.GetType().Name);
+            }
+        }
+        return string.Join("\n", output);
+    }
 
     public static byte[] EncodeToPNG(Texture2D texture)
     {

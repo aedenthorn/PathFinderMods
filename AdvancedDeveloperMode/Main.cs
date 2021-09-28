@@ -95,6 +95,7 @@ namespace AdvancedDeveloperMode
                 SmartConsole.RegisterCommand("list_companions", new SmartConsole.ConsoleCommandFunction(ListCompanions));
                 SmartConsole.RegisterCommand("list_banters", new SmartConsole.ConsoleCommandFunction(ListBanter));
                 SmartConsole.RegisterCommand("list_locs", new SmartConsole.ConsoleCommandFunction(ListLocs));
+                SmartConsole.RegisterCommand("romance_info", new SmartConsole.ConsoleCommandFunction(RomanceInfo));
             }
         }
 
@@ -141,6 +142,30 @@ namespace AdvancedDeveloperMode
                     PFLog.SmartConsole.Log(blueprintPath, Array.Empty<object>());
                 }
             }
+        }
+
+        private static void RomanceInfo(string parameters)
+        {
+            foreach (BlueprintRomanceCounter blueprintRomanceCounter in Utilities.GetScriptableObjects<BlueprintRomanceCounter>())
+            {
+                PFLog.SmartConsole.Log("Romance " + Utilities.GetBlueprintName(blueprintRomanceCounter), Array.Empty<object>());
+                PFLog.SmartConsole.Log(FlagInfo(blueprintRomanceCounter.CounterFlag), Array.Empty<object>());
+                PFLog.SmartConsole.Log(FlagInfo(blueprintRomanceCounter.MaxValueFlag), Array.Empty<object>());
+                PFLog.SmartConsole.Log(FlagInfo(blueprintRomanceCounter.CounterFlag), Array.Empty<object>());
+            }
+        }
+
+        private static string FlagInfo(BlueprintUnlockableFlag counterCounterFlag)
+        {
+            if (counterCounterFlag == null)
+                return "";
+
+            Dictionary<BlueprintUnlockableFlag, int> unlockedFlags = Game.Instance.Player.UnlockableFlags.UnlockedFlags;
+            if (unlockedFlags.ContainsKey(counterCounterFlag))
+            {
+                return Utilities.GetBlueprintName(counterCounterFlag) + unlockedFlags[counterCounterFlag];
+            }
+            return Utilities.GetBlueprintName(counterCounterFlag) + " Absent";
         }
 
         private static void ToggleCanSeeTheirClassSpecificClothes(string parameters)

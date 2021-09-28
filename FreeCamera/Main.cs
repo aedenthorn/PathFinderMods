@@ -113,7 +113,7 @@ namespace FreeCamera
             GUILayout.EndHorizontal();
             GUILayout.Space(20f);
 
-            GUILayout.Label(string.Format("Mouse Rotation Speed Mult: <b>{0:F1}1x</b>", settings.MouseRotationSpeed), new GUILayoutOption[0]);
+            GUILayout.Label(string.Format("Mouse Rotation Speed Mult: <b>{0:F1}x</b>", settings.MouseRotationSpeed), new GUILayoutOption[0]);
             settings.MouseRotationSpeed = GUILayout.HorizontalSlider(settings.MouseRotationSpeed, 1f, 100f, new GUILayoutOption[0]) / 10f;
             GUILayout.Space(20f);
 

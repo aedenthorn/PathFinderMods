@@ -4,7 +4,6 @@ using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.UI._ConsoleUI.Overtips;
 using Kingmaker.Utility;
 using Kingmaker.View.MapObjects;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityModManagerNet;
@@ -67,7 +66,7 @@ namespace LootPreview
         {
             static void Prefix(EntityOvertipVM __instance)
             {
-                if (!enabled || !__instance.MapObject?.Get<InteractionLootPart>() || !__instance.ObjectIsHovered.Value)
+                if (!enabled || !__instance.ObjectIsHovered.Value || !__instance.MapObject?.Get<InteractionLootPart>())
                     return;
 
                 InteractionLootPart interactionLootPart = __instance.MapObject.Get<InteractionLootPart>();
@@ -75,7 +74,7 @@ namespace LootPreview
                 string text = !StringUtility.IsNullOrInvisible(interactionLootPart.GetName()) ? interactionLootPart.GetName() : UIStrings.Instance.LootWindow.GetLootName(interactionLootPart.Settings.LootContainerType);
                 bool nearby = CharacterNearby(interactionLootPart);
 
-                Dbgl($"highlighted {text}; current text {__instance.Name.Value}, nearby {nearby}");
+                //Dbgl($"highlighted {text}; current text {__instance.Name.Value}, nearby {nearby}");
 
                 if (__instance.Name.Value == text && nearby)
                 {
@@ -83,7 +82,7 @@ namespace LootPreview
                     //Dbgl($"object has {entries.Count()} loots");
                     foreach (var entry in entries)
                     {
-                        text += $"\n{entry.Name}";
+                        text += "\n"+entry.Name;
                         //Dbgl($"Added item {entry.Name} to name");
                     }
                     __instance.Name.Value = text;
