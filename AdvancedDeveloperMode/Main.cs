@@ -96,6 +96,8 @@ namespace AdvancedDeveloperMode
                 SmartConsole.RegisterCommand("list_banters", new SmartConsole.ConsoleCommandFunction(ListBanter));
                 SmartConsole.RegisterCommand("list_locs", new SmartConsole.ConsoleCommandFunction(ListLocs));
                 SmartConsole.RegisterCommand("romance_info", new SmartConsole.ConsoleCommandFunction(RomanceInfo));
+                SmartConsole.RegisterCommand("romance_increase", "romance_increase CamelliaRomanceRomanceCounter", new SmartConsole.ConsoleCommandFunction(RomanceIncrease));
+                SmartConsole.RegisterCommand("romance_unlock", "romance_unlock CamelliaRomanceRomanceCounter", new SmartConsole.ConsoleCommandFunction(RomanceUnlock));
             }
         }
 
@@ -152,6 +154,43 @@ namespace AdvancedDeveloperMode
                 PFLog.SmartConsole.Log(FlagInfo(blueprintRomanceCounter.CounterFlag), Array.Empty<object>());
                 PFLog.SmartConsole.Log(FlagInfo(blueprintRomanceCounter.MaxValueFlag), Array.Empty<object>());
                 PFLog.SmartConsole.Log(FlagInfo(blueprintRomanceCounter.CounterFlag), Array.Empty<object>());
+            }
+        }
+        
+        private static void RomanceIncrease(string parameters)
+        {
+            foreach (BlueprintRomanceCounter blueprintRomanceCounter in Utilities.GetScriptableObjects<BlueprintRomanceCounter>())
+            {
+                try
+                {
+                    string paramString = Utilities.GetParamString(parameters, 1, "Missing parameter");
+                    if (Utilities.GetBlueprintName(blueprintRomanceCounter) == paramString)
+                    {
+                        blueprintRomanceCounter.UnlockFlags();
+                        if (blueprintRomanceCounter.MaxValueFlag.Value <= blueprintRomanceCounter.CounterFlag.Value)
+                            blueprintRomanceCounter.MaxValueFlag.Value++;
+                        blueprintRomanceCounter.CounterFlag.Value++;
+                        PFLog.SmartConsole.Log($"Romance increased from {(blueprintRomanceCounter.CounterFlag.Value - 1)} to {blueprintRomanceCounter.CounterFlag.Value}", Array.Empty<object>());
+                    }
+                }
+                catch { }
+            }
+        }
+                
+        private static void RomanceUnlock(string parameters)
+        {
+            foreach (BlueprintRomanceCounter blueprintRomanceCounter in Utilities.GetScriptableObjects<BlueprintRomanceCounter>())
+            {
+                try { 
+                    string paramString = Utilities.GetParamString(parameters, 1, "Missing parameter");
+                    if (Utilities.GetBlueprintName(blueprintRomanceCounter) == paramString)
+                    {
+                        blueprintRomanceCounter.UnlockFlags();
+                        PFLog.SmartConsole.Log("Romance unlocked", Array.Empty<object>());
+                    }
+                }
+                catch { }
+
             }
         }
 

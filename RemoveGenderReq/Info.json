@@ -1,0 +1,10 @@
+{
+  "Id": "RemoveGenderReq",
+  "DisplayName": "Remove Gender Requirement",
+  "Author": "aedenthorn",
+  "Version": "0.1.2",
+  "AssemblyName": "RemoveGenderReq.dll",
+  "EntryMethod": "RemoveGenderReq.Main.Load",
+  "HomePage": "https://www.nexusmods.com/pathfinderwrathoftherighteous/mods/125",
+  "Repository": "https://raw.githubusercontent.com/aedenthorn/PathFinderMods/master/repository.json"
+}

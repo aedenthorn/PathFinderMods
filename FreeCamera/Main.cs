@@ -2,6 +2,7 @@
 using HarmonyLib;
 using Kingmaker;
 using Kingmaker.Settings;
+using Kingmaker.UI.Common;
 using Kingmaker.View;
 using System.Reflection;
 using UnityEngine;
@@ -125,7 +126,7 @@ namespace FreeCamera
         {
             static bool Prefix(CameraZoom __instance, Coroutine ___m_ZoomRoutine, float ___m_Smooth, ref float ___m_PlayerScrollPosition, ref float ___m_ScrollPosition, ref float ___m_SmoothScrollPosition, Camera ___m_Camera, float ___m_ZoomLenght)
             {
-                if (!enabled)
+                if (!enabled || UIUtility.IsGlobalMap())
                     return true;
 
 
@@ -163,14 +164,13 @@ namespace FreeCamera
         }
         
         public static float elevated = 0;
-        public static float defaultElevation = 0;
         
         [HarmonyPatch(typeof(CameraRig), nameof(CameraRig.TickRotate))]
         static class CameraRig_TickRotate_Patch
         {
             static void Postfix(CameraRig __instance, float ___m_RotationSpeed, float ___m_RotationRatio, float ___m_RotationTime)
             {
-                if (!enabled)
+                if (!enabled || UIUtility.IsGlobalMap())
                     return;
 
                 if((AedenthornUtils.CheckKeyHeld(settings.XRotateModKey) || AedenthornUtils.CheckKeyHeld(settings.ZRotateModKey)) && (AedenthornUtils.CheckKeyHeld(settings.RotateLeftKey) || AedenthornUtils.CheckKeyHeld(settings.RotateRightKey)))
@@ -181,7 +181,7 @@ namespace FreeCamera
                     if(AedenthornUtils.CheckKeyHeld(settings.ZRotateModKey))
                         eulerAngles.z += ___m_RotationRatio * SettingsRoot.Controls.CameraRotationSpeedKeyboard * ___m_RotationSpeed * CameraRig.ConsoleRotationMod * (AedenthornUtils.CheckKeyHeld(settings.RotateLeftKey) ? -1 : 1);
                     else
-                        eulerAngles.x += ___m_RotationRatio * SettingsRoot.Controls.CameraRotationSpeedKeyboard * ___m_RotationSpeed * CameraRig.ConsoleRotationMod * (AedenthornUtils.CheckKeyHeld(settings.RotateLeftKey) ? -1 : 1);
+                        eulerAngles.x += ___m_RotationRatio * SettingsRoot.Controls.CameraRotationSpeedKeyboard * ___m_RotationSpeed * CameraRig.ConsoleRotationMod * (AedenthornUtils.CheckKeyHeld(settings.RotateLeftKey) ? 1 : -1);
                     __instance.transform.DOKill(false);
                     __instance.transform.DOLocalRotate(eulerAngles, ___m_RotationTime, RotateMode.Fast).SetUpdate(true);
                 }
@@ -203,12 +203,11 @@ namespace FreeCamera
 
                 if(lastMousePosition.x >= 0)
                 {
-                    float rotation = Input.mousePosition.x - lastMousePosition.x;
+                    float xrotation = Input.mousePosition.y - lastMousePosition.y;
+                    float zrotation = Input.mousePosition.x - lastMousePosition.x;
                     Vector3 eulerAngles = __instance.transform.rotation.eulerAngles;
-                    if (AedenthornUtils.CheckKeyHeld(settings.ZRotateModKey))
-                        eulerAngles.z += rotation * settings.MouseRotationSpeed;
-                    else
-                        eulerAngles.x += rotation * settings.MouseRotationSpeed;
+                    eulerAngles += new Vector3(xrotation, 0, -zrotation) * settings.MouseRotationSpeed;
+
                     __instance.transform.DOKill(false);
                     __instance.transform.DOLocalRotate(eulerAngles, ___m_RotationTime, RotateMode.Fast).SetUpdate(true);
                 }
@@ -217,16 +216,15 @@ namespace FreeCamera
             }
         }
 
-        [HarmonyPatch(typeof(CameraRig), nameof(CameraRig.TickScroll))]
+        [HarmonyPatch(typeof(CameraRig), "PlaceOnGround")]
         static class CameraRig_TickScroll_Patch
         {
-            static void Postfix(CameraRig __instance, ref Vector3 ___m_TargetPosition)
+            static void Postfix(ref Vector3 __result)
             {
-                if (!enabled)
+                if (!enabled || UIUtility.IsGlobalMap())
                     return;
 
-                if(elevated > 0)
-                    ___m_TargetPosition = new Vector3(___m_TargetPosition.x, elevated, ___m_TargetPosition.z);
+                __result.y += elevated;
             }
         }
         [HarmonyPatch(typeof(CameraRig), "Update")]
@@ -234,29 +232,26 @@ namespace FreeCamera
         {
             static void Prefix(CameraRig __instance, ref Vector3 ___m_TargetPosition)
             {
-                if (!enabled)
+                if (!enabled || UIUtility.IsGlobalMap())
                     return;
                 if (AedenthornUtils.CheckKeyHeld(settings.ResetModKey) && AedenthornUtils.CheckKeyDown(settings.ResetKey))
                 {
                     __instance.transform.eulerAngles = new Vector3(0, __instance.transform.rotation.eulerAngles.y, 0);
-                    if(defaultElevation > 0)
-                    {
-                        elevated = defaultElevation;
-                    }
+                    elevated = 0;
+                    ___m_TargetPosition = (Vector3)AccessTools.Method(typeof(CameraRig), "PlaceOnGround").Invoke(__instance, new object[] { ___m_TargetPosition });
+
                 }
                 else if (AedenthornUtils.CheckKeyHeld(settings.ElevationModKey) && (AedenthornUtils.CheckKeyHeld(settings.ElevateUpKey) || AedenthornUtils.CheckKeyHeld(settings.ElevateDownKey)))
                 {
-                    if (elevated == 0)
-                        defaultElevation = ___m_TargetPosition.y;
-
+                    Dbgl($"Changing elevation {elevated}");
                     float e = 0.1f * (AedenthornUtils.CheckKeyHeld(settings.ElevateUpKey) ? 1 : -1);
                     ___m_TargetPosition += new Vector3(0, e, 0);
                     if (___m_TargetPosition.y <= 0)
                         ___m_TargetPosition = new Vector3(___m_TargetPosition.x, 0.01f, ___m_TargetPosition.z);
 
-
-                    elevated = ___m_TargetPosition.y;
+                    elevated += e;
                 }
+
             }
         }
     }
