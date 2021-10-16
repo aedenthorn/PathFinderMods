@@ -62,6 +62,23 @@ namespace FreeCamera
             GUILayout.Space(20f);
 
 
+            GUILayout.Label(string.Format("Max Field of View: <b>{0:F0}</b>", settings.FOVMax), new GUILayoutOption[0]);
+            settings.FOVMax = GUILayout.HorizontalSlider(settings.FOVMax, -180f, 180f, new GUILayoutOption[0]);
+            GUILayout.Space(10f);
+
+            GUILayout.Label(string.Format("Min Field of View: <b>{0:F0}</b>", settings.FOVMin), new GUILayoutOption[0]);
+            settings.FOVMin = GUILayout.HorizontalSlider(settings.FOVMin, -180f, 180f, new GUILayoutOption[0]);
+            GUILayout.Space(20f);
+
+            if(settings.FOVMin >= settings.FOVMax)
+            {
+                if (settings.FOVMin < 180)
+                    settings.FOVMax++;
+                else
+                    settings.FOVMin--;
+
+            }
+
             GUILayout.Label(string.Format("Quick Zoom Speed Mult: <b>{0:F0}x</b>", settings.QuickZoomSpeed), new GUILayoutOption[0]);
             settings.QuickZoomSpeed = GUILayout.HorizontalSlider(settings.QuickZoomSpeed, 1f, 10f, new GUILayoutOption[0]);
             GUILayout.Space(10f);
